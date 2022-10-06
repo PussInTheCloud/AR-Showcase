@@ -12,6 +12,8 @@ public class CameraRotationController : MonoBehaviour
     Quaternion horizontalRotationCorrection;
     Quaternion inGameOrientation;
 
+    public GameObject hint;
+
     float verticalOffsetAngle = -90f;
     float horizontalOffsetAngle = 0f;
     float slerpValue = 0.2f;
@@ -23,10 +25,34 @@ public class CameraRotationController : MonoBehaviour
         m_Compass = Input.compass;
         m_Gyro.enabled = true;
         m_Compass.enabled = true;
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        StartCoroutine(HelperTimout());
     }
+
+    IEnumerator HelperTimout()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+            Ray ray = GetComponent<Camera>().ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                Debug.Log("Clicked on " + hit.transform.name);
+                hint.gameObject.SetActive(false);
+            }
+            else
+            {
+                Debug.Log("Nothing hit");
+                hint.gameObject.SetActive(true);
+            }
+        }
+    }
+
     void Update()
     {
-        GyroModifyCamera(); 
+       // GyroModifyCamera(); 
     }
     void GyroModifyCamera()
     {
